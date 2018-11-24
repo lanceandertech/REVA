@@ -14,7 +14,6 @@ def main():
         owner_label = 'Owner Name'
         phone_label = 'Phone'
 
-
         def lead_gen():
             """
             Extracts property owner's name from csv_file row-by-row
@@ -80,14 +79,11 @@ def main():
                 """
                 print('### Beginning to structure lead')
                 current_lead = next(lead_gen())
+                #print(f'Current lead >> {current_lead}')
                 setget_lead_owner(current_lead[owner_label])
                 setget_lead_phone(current_lead[phone_label])
-                print(f'Owner: {setget_lead_owner()}')
-                print(f'Phone: {setget_lead_phone()}')
-                try:
-                    print(f'Properties: {setget_lead_properties()}')
-                except Exception as ex:
-                    print(ex)
+                #print(f'Owner: {setget_lead_owner()}')
+                #print(f'Phone: {setget_lead_phone()}')
 
                 def find_duplicate_properties():
                     """
@@ -95,22 +91,29 @@ def main():
                     All properties are consolidated into an array
                     :return: consolidated properties in an array
                     """
-                    addresses = []
-                    for x in csv_data:
-                        if x[owner_label] == current_lead:
-                            address_number = x['Site Address House Number']
-                            address_prefix = x['Site Address Street Prefix']
-                            address_name = x['Site Address Street Name1']
-                            address_unit = x['Site Address Unit Number']
-                            address_city = x['Site Address City/State']
-                            address_zip = x['Site Address Zip']
+                    try:
+                        print('### inside duplicate properties')
+                        properties = []
+                        for x in csv_data:
+                            if x[owner_label] == current_lead[owner_label]:
+                                address_number = x['Site Address House Number']
+                                address_prefix = x['Site Address Street Prefix']
+                                address_name = x['Site Address Street Name1']
+                                address_unit = x['Site Address Unit Number']
+                                address_city = x['Site Address City/State']
+                                address_zip = x['Site Address Zip']
 
-                            completed_address = f'{address_number} {address_prefix} {address_name} {address_unit}, {address_city}-{address_zip}'
+                                completed_address = f'{address_number} {address_prefix} {address_name} {address_unit}, {address_city}-{address_zip}'
 
-                            addresses.append(completed_address)
-                    return addresses
+                                properties.append(completed_address)
+                                #print(completed_address)
+                        return properties
+                        #print(properties)
+                    except Exception as error:
+                        print('Error in find_duplicate_properties()')
+                        print(error)
 
-                # find_duplicate_properties()
+                print(find_duplicate_properties())
 
             build_next_lead()
 
