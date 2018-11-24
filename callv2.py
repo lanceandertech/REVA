@@ -1,18 +1,19 @@
 import csv
 
+lead_owner = ''
+lead_phone = ''
+lead_properties = []
 
 def main():
     print('### Inside main function.')
 
     try:
-        """Open csv file
-        """
         csv_file = open('test.csv')
         csv_data = csv.DictReader(csv_file)
 
         owner_label = 'Owner Name'
         phone_label = 'Phone'
-        completed_lead = {}
+
 
         def lead_gen():
             """
@@ -20,7 +21,7 @@ def main():
             :yields: generates a row from CSV file
             """
             for lead in csv_data:
-                yield lead['Owner Name']
+                yield lead
 
         def number_of_rows():
             """
@@ -32,23 +33,69 @@ def main():
             csv_length = len(csv_list)
             return csv_length
 
-        """T1: get lead owner name
-           t2: Match lead owner against rest of csv
-           t3: if match is found, reconstruct and add properties to array
-        """
+        def setget_lead_owner(owner=''):
+            """
+            Setter and Getter for 'lead_owner' variable
+            If optional parameter IS set it will update 'setget_lead_owner'
+            If optional parameter is NOT set, return 'setget_lead_owner'
+            :param owner:
+            :return: 'lead_owner'
+            """
+            global lead_owner
+            if owner != '':
+                lead_owner = owner
+            return lead_owner
+
+        def setget_lead_phone(phone=''):
+            """
+            Setter and Getter for 'lead_phone' variable
+            If optional parameter IS set it will update 'lead_phone'
+            If optional parameter is NOT set, return 'lead_phone'
+            :param phone:
+            :return: 'lead_phone'
+            """
+            global lead_phone
+            if phone != '':
+                lead_phone = phone
+            return lead_phone
+
+        def setget_lead_properties(properties=[]):
+            """
+            Setter and Getter for 'lead_properties' variable
+            If optional parameter IS set it will update 'lead_properties'
+            If optional parameter is NOT set, return 'lead_properties'
+            :param properties:
+            :return: 'lead_properties'
+            """
+            global lead_properties
+            if properties != []:
+                lead_properties = properties
+            return lead_properties
+
         try:
-            def build_lead():
+            def build_next_lead():
                 """
 
                 :return:
                 """
                 print('### Beginning to structure lead')
                 current_lead = next(lead_gen())
-                lead_owner = ''
-                lead_phone = ''
-                lead_address = []
+                setget_lead_owner(current_lead[owner_label])
+                setget_lead_phone(current_lead[phone_label])
+                print(f'Owner: {setget_lead_owner()}')
+                print(f'Phone: {setget_lead_phone()}')
+                try:
+                    print(f'Properties: {setget_lead_properties()}')
+                except Exception as ex:
+                    print(ex)
 
-                def find_duplicates():
+                def find_duplicate_properties():
+                    """
+                    Scans 'csv_data' to check if the lead has multi[;e properties
+                    All properties are consolidated into an array
+                    :return: consolidated properties in an array
+                    """
+                    addresses = []
                     for x in csv_data:
                         if x[owner_label] == current_lead:
                             address_number = x['Site Address House Number']
@@ -60,16 +107,12 @@ def main():
 
                             completed_address = f'{address_number} {address_prefix} {address_name} {address_unit}, {address_city}-{address_zip}'
 
-                            lead_owner = x[owner_label]
-                            lead_phone = x[phone_label]
-                            lead_address.append(completed_address)
+                            addresses.append(completed_address)
+                    return addresses
 
-                find_duplicates()
+                # find_duplicate_properties()
 
-                def complete_lead():
-                    
-
-            build_lead()
+            build_next_lead()
 
         except:
             print('### Error: Unable to create lead.')
