@@ -69,41 +69,45 @@ def setget_lead_properties(properties=[]):
         lead_properties = properties
     return lead_properties
 
+
+def find_duplicate_properties(name_to_search, file_to_look_through):
+    """
+    Scans 'csv_data' to check if the lead has multiple properties
+    All properties belonging to the same owner are consolidated into an array
+    :return: an array of the consolidated properties
+    """
+    print('### inside duplicate properties')
+    properties = []
+    for x in file_to_look_through:
+
+        if x[owner_label] == name_to_search:
+            address_number = x['Site Address House Number']
+            address_prefix = x['Site Address Street Prefix']
+            address_name = x['Site Address Street Name1']
+            address_unit = x['Site Address Unit Number']
+            address_city = x['Site Address City/State']
+            address_zip = x['Site Address Zip']
+
+            completed_address = f'{address_number} {address_prefix} {address_name} {address_unit}, {address_city}-{address_zip}'
+
+            properties.append(completed_address)
+    return properties
+
+
 def build_lead_profile(csv_data):
     """
-
+    Assigns the setter and getter functions for the lead
     :return:
     """
     global owner_label
     global phone_label
     print('### Beginning to structure lead')
     current_lead = next(lead_gen(csv_data))
+    #print(current_lead)
     setget_lead_owner(current_lead[owner_label])
     setget_lead_phone(current_lead[phone_label])
+    setget_lead_properties(find_duplicate_properties(setget_lead_owner(), csv_data))
 
-    def find_duplicate_properties():
-        """
-        Scans 'csv_data' to check if the lead has multiple properties
-        All properties are consolidated into an array
-        :return: an array of the consolidated properties
-        """
-        print('### inside duplicate properties')
-        properties = []
-        for x in csv_data:
-            if x[owner_label] == current_lead[owner_label]:
-                address_number = x['Site Address House Number']
-                address_prefix = x['Site Address Street Prefix']
-                address_name = x['Site Address Street Name1']
-                address_unit = x['Site Address Unit Number']
-                address_city = x['Site Address City/State']
-                address_zip = x['Site Address Zip']
-
-                completed_address = f'{address_number} {address_prefix} {address_name} {address_unit}, {address_city}-{address_zip}'
-
-                properties.append(completed_address)
-        return properties
-
-    setget_lead_properties(find_duplicate_properties())
 
 def main():
     print('### Inside main function.')
@@ -115,5 +119,12 @@ def main():
             build_lead_profile(csv_data)
         except Exception as error:
             print(f'### Unable to create lead profile. Error: {error}')
+
+        print(f'Owner: {setget_lead_owner()} \n'
+              f'Phone: {setget_lead_phone()} \n'
+              f'Properties: ')
+        for i in setget_lead_properties():
+            print(i)
+
 
 main()
