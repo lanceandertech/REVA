@@ -3,12 +3,13 @@ import csv
 lead_owner = ''
 lead_phone = ''
 lead_properties = []
+_evaluated_lead = None
 
+_csv_file_path = 'test.csv'
 _csv_owner_label = 'Owner Name'
 _csv_phone_label = 'Phone'
 
-_call_log = ['James Royster', 'Terra Young', 'Michael Hicks', 'Irving Epps & Irving & Shirley Epps Trust']
-_csv_file_path = 'test.csv'
+_call_log = []
 
 
 def generate_lead(csv_data):
@@ -92,7 +93,7 @@ def find_duplicate_properties(name_to_search):
                 address_city = x['Site Address City/State']
                 address_zip = x['Site Address Zip']
 
-                completed_address = f'{address_number} {address_prefix} {address_name} {address_unit}, {address_city}-{address_zip}'
+                completed_address = f'{address_number} {address_prefix} {address_name} {address_unit} {address_city}-{address_zip}'
 
                 properties.append(completed_address)
         return properties
@@ -105,17 +106,23 @@ def build_lead_profile(lead):
     """
     setget_lead_owner(lead[_csv_owner_label])
     setget_lead_phone(lead[_csv_phone_label])
-    setget_lead_properties(find_duplicate_properties(setget_lead_owner()))
+    setget_lead_properties(find_duplicate_properties(lead[_csv_owner_label]))
 
 
 def setget_next_lead(lead=''):
-    next_lead = None
+    global _evaluated_lead
     if lead != '':
-        next_lead = lead
-    return next(next_lead)
+        _evaluated_lead = lead
+    return next(_evaluated_lead)
 
 
-def check_call_log(lead):
+def is_in_call_log(lead):
+    """
+    Checks if the supplied 'lead' is in '_call_log'
+    If yes, return True
+    :param lead:
+    :return: True
+    """
     global _call_log
     if lead in _call_log:
         return True
@@ -128,17 +135,25 @@ def main():
         csv_data = csv.DictReader(csv_file)
 
         try:
-            lead = setget_next_lead(generate_lead(csv_data))
-            while check_call_log(lead[_csv_owner_label]) == True:
-                lead = setget_next_lead(generate_lead(csv_data))
-            build_lead_profile(lead=lead)
-            print(setget_lead_owner())
-            print(setget_lead_phone())
-            print('Properties')
-            print(find_duplicate_properties(setget_lead_owner()))
+
+            for x in csv_data:
+                lead = x
+                if is_in_call_log(lead[_csv_owner_label]):
+                    continue
+                else:
+                    _next_lead = lead
+                    build_lead_profile(_next_lead)
+                    print(f'Owner: {setget_lead_owner()}')
+                    print(f'Phone: {setget_lead_phone()}')
+                    for i in setget_lead_properties():
+                        print(f'Property: {i}')
+                    print('\n')
+                    ### Call API goes here
+                    _call_log.append(_next_lead[_csv_owner_label])
+
 
         except Exception as error:
-            print(f'### Unable to create lead profile. Error: {error}')
+            print(f'### Error: {error}')
 
 
 main()
