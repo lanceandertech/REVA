@@ -20,7 +20,7 @@ def main():
             lead_name = next(lead_gen())
             property_constructor = ''
             completed_lead['owner'] = lead_name
-            #completed_lead['phone'] = x[phone_label]
+            #completed_lead['phone'] = x[_csv_phone_label]
             completed_lead['properties'] = []
 
 
